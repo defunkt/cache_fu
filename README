@@ -1,0 +1,17 @@
+== cache_fu
+
+A rewrite of acts_as_cached.
+
+== Changes from acts_as_cached 1
+
+- You can no longer set a 'ttl' method on a class.  Instead,
+  pass :ttl to acts_as_cached:
+    >> acts_as_cached :ttl => 15.minutes
+
+- The is_cached? method is aliased as cached?
+
+- set_cache on an instance can take a ttl
+    >> @story.set_cache(15.days)
+
+
+Chris Wanstrath [ chris[at]ozmm[dot]org ]
