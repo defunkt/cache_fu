@@ -16,7 +16,7 @@ module ActsAsCached
         def cache(name = {}, options = nil, &block)
           @controller.cache_erb_fragment(block, name, options)
         end
-      end
+      end unless ::ActionView.const_defined?(:Template)
       ::ActionController::Base.fragment_cache_store = CACHE
     end
 
