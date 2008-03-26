@@ -12,12 +12,18 @@ module ActsAsCached
     
     # add :ttl option to cache helper and set cache store memcache object
     def self.setup_rails_for_memcache_fragments
-      ::ActionView::Helpers::CacheHelper.class_eval do
-        def cache(name = {}, options = nil, &block)
-          @controller.cache_erb_fragment(block, name, options)
+      if ::ActionView.const_defined?(:Template)
+        # Rails 2.1+
+        ::ActionController::Base.cache_store = CACHE
+      else
+        # Rails < svn r8619
+        ::ActionView::Helpers::CacheHelper.class_eval do
+          def cache(name = {}, options = nil, &block)
+            @controller.cache_erb_fragment(block, name, options)
+          end
         end
-      end unless ::ActionView.const_defined?(:Template)
-      ::ActionController::Base.fragment_cache_store = CACHE
+        ::ActionController::Base.fragment_cache_store = CACHE
+      end
     end
 
     def self.setup_fragment_cache_cache
