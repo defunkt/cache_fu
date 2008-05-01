@@ -44,13 +44,13 @@ module ActsAsCached
       config[:namespace] << "-#{RAILS_ENV}"
 
       silence_warnings do
-        Object.const_set :CACHE, memcache_klass.new(config)
-        Object.const_set :SESSION_CACHE, memcache_klass.new(config) if config[:session_servers]
+        Object.const_set :CACHE, memcache_client(config)
+        Object.const_set :SESSION_CACHE, memcache_client(config) if config[:session_servers]
       end
 
       CACHE.servers = Array(config.delete(:servers))
       SESSION_CACHE.servers = Array(config[:session_servers]) if config[:session_servers]
-
+     
       setup_session_store   if config[:sessions]
       setup_fragment_store! if config[:fragments]
       setup_fast_hash!      if config[:fast_hash]
@@ -59,8 +59,8 @@ module ActsAsCached
       CACHE
     end
 
-    def memcache_klass
-      Object.const_defined?(:MemCacheWithConsistentHashing) ? MemCacheWithConsistentHashing : MemCache
+    def memcache_client(config)
+      (config[:client] || "MemCache").constantize.new(config)
     end
 
     def setup_session_store

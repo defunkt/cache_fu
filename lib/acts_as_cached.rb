@@ -4,6 +4,7 @@ require 'acts_as_cached/fragment_cache'
 require 'acts_as_cached/benchmarking' 
 require 'acts_as_cached/disabled'
 require 'acts_as_cached/local_cache'
+require 'acts_as_cached/memcached_rails'
 
 module ActsAsCached
   @@config = {}

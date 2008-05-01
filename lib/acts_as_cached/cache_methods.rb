@@ -196,19 +196,19 @@ module ActsAsCached
 
     def swallow_or_raise_cache_errors(load_constants = false, &block)
       load_constants ? autoload_missing_constants(&block) : yield
-    rescue NoMethodError, ArgumentError, MemCache::MemCacheError => error
-      if ActsAsCached.config[:raise_errors]
-        raise error
-      else
-        RAILS_DEFAULT_LOGGER.debug "MemCache Error: #{error.message}" rescue nil
-        nil
-      end
     rescue TypeError => error
       if error.to_s.include? 'Proc' 
         raise MarshalError, "Most likely an association callback defined with a Proc is triggered, see http://ar.rubyonrails.com/classes/ActiveRecord/Associations/ClassMethods.html (Association Callbacks) for details on converting this to a method based callback" 
       else
         raise error
       end
+    rescue Exception => error
+      if ActsAsCached.config[:raise_errors]
+        raise error
+      else
+        RAILS_DEFAULT_LOGGER.debug "MemCache Error: #{error.message}" rescue nil
+        nil
+      end      
     end
 
     def autoload_missing_constants
@@ -277,7 +277,7 @@ module ActsAsCached
       set_cache
     end
 
-    # Lourens Naudé
+    # Lourens Naud
     def expire_cache_with_associations(*associations_to_sweep)
       (Array(cache_options[:include]) + associations_to_sweep).flatten.uniq.compact.each do |assoc|
         Array(send(assoc)).compact.each { |item| item.expire_cache if item.respond_to?(:expire_cache) }
