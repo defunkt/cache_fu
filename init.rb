@@ -13,6 +13,8 @@ begin
 rescue LoadError
 end
 
+puts "=> You should be using the `memcache-client' gem.  You're using RubyMemcache!" if Object.const_defined?(:RubyMemcache)
+
 require 'acts_as_cached'
 
 Object.send :include, ActsAsCached::Mixin
