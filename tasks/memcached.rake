@@ -1,4 +1,5 @@
 require 'yaml'
+require 'erb'
 
 namespace :memcached do
   desc "Start memcached locally" 
@@ -22,7 +23,7 @@ end
 
 def config
   return @config if @config
-  config  = YAML.load_file(File.dirname(__FILE__) + '/../../../../config/memcached.yml')
+  config  = YAML.load(ERB.new(IO.read(File.dirname(__FILE__) + '/../../../../config/memcached.yml')).result)
   @config = config['defaults'].merge(config['development'])
 end
 

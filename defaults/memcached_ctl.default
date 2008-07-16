@@ -5,6 +5,7 @@
 # it keeps you from having to mess w/ stale memcached daemons for whatever reason.
 require 'yaml'
 require 'timeout'
+require 'erb'
 
 class MemcachedCtl
   attr_accessor :memcached, :memory, :pids, :servers, :ip_address, :ethernet_device
@@ -18,7 +19,7 @@ class MemcachedCtl
     self.ip_address = get_ip_address || '0.0.0.0'
     self.memory = '128'
     
-    config = YAML.load_file(File.expand_path(File.dirname(__FILE__) + "/../config/memcached.yml"))
+    config = YAML.load(ERB.new(IO.read((File.expand_path(File.dirname(__FILE__) + "/../config/memcached.yml")))).result)
     self.servers = [ config['defaults']['servers'] ].flatten rescue ['127.0.0.1:11211']
     self.servers = [ config[env]['servers'] ].flatten if config[env]['servers']
     self.servers.reject! { |server| host,port = server.split(/:/); self.ip_address == host }
