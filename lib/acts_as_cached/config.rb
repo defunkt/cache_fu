@@ -43,6 +43,10 @@ module ActsAsCached
     def setup_memcache(config)
       config[:namespace] << "-#{RAILS_ENV}"
 
+      # if someone (e.g., interlock) already set up memcached, then
+      # we need to stop here
+      return CACHE if Object.const_defined?(:CACHE)
+
       silence_warnings do
         Object.const_set :CACHE, memcache_client(config)
         Object.const_set :SESSION_CACHE, memcache_client(config) if config[:session_servers]
