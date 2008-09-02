@@ -74,6 +74,19 @@ module ActsAsCached
       (hits.values + missed_records).index_by(&:cache_id)
     end
 
+    # simple wrapper for get_caches that
+    # returns the items as an ordered array
+    def get_caches_as_list(*args)
+      cache_ids = args.last.is_a?(Hash) ? args.first : args
+      cache_ids = [cache_ids].flatten
+      hash = get_caches(*args)
+      list = []
+      cache_ids.size.times do |i|
+        list << hash[cache_ids[i]]
+      end
+      return list
+    end
+
     def set_cache(cache_id, value, ttl = nil)
       returning(value) do |v|
         v = @@nil_sentinel if v.nil?
