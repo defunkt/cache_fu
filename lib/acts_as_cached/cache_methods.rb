@@ -168,8 +168,11 @@ module ActsAsCached
     # Memcache-client automatically prepends the namespace, plus a colon, onto keys, so we take that into account for the max key length.
     # Rob Sanheim
     def max_key_length
-      key_size = cache_config[:key_size] || 250
-      @max_key_length ||= cache_namespace ? (key_size - cache_namespace.length - 1) : key_size
+      unless @max_key_length
+        key_size = cache_config[:key_size] || 250
+        @max_key_length = cache_namespace ? (key_size - cache_namespace.length - 1) : key_size
+      end
+      @max_key_length 
     end
 
     def cache_name
