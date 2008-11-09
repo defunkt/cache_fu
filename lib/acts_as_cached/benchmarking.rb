@@ -57,17 +57,31 @@ module ActsAsCached
     end
 
     def self.inject_into_logs!
-      ActionController::Base.send :alias_method_chain, :view_runtime, :memcache
+      if ActionController::Base.private_method_defined?(:rendering_runtime)
+        # Rails < 2.2
+        ActionController::Base.send :alias_method_chain, :rendering_runtime, :memcache
+      elsif ActionController::Base.private_method_defined?(:view_runtime)
+        # Rails >= 2.2
+        ActionController::Base.send :alias_method_chain, :view_runtime, :memcache
+      else
+        raise "Unknown Rails Version?!"
+      end
     end
   end
 end
 
 module ActionController
   class Base 
-    def view_runtime_with_memcache(runtime) #:nodoc:
+    def rendering_runtime_with_memcache(runtime) #:nodoc:
       cache_runtime = ActsAsCached::Benchmarking.cache_runtime
       ActsAsCached::Benchmarking.cache_reset_runtime
-      view_runtime_without_memcache(runtime) + (cache_runtime.nonzero? ? " | Memcache: #{"%.5f" % cache_runtime}" : '')
+      rendering_runtime_without_memcache(runtime) + (cache_runtime.nonzero? ? " | Memcache: #{"%.5f" % cache_runtime}" : '')
+    end
+
+    def view_runtime_with_memcache #:nodoc:
+      cache_runtime = ActsAsCached::Benchmarking.cache_runtime
+      ActsAsCached::Benchmarking.cache_reset_runtime
+      view_runtime_without_memcache + (cache_runtime.nonzero? ? ", Memcache: #{"%.0f" % (cache_runtime * 1000)}" : '')
     end
   end
 end 
