@@ -57,17 +57,17 @@ module ActsAsCached
     end
 
     def self.inject_into_logs!
-      ActionController::Base.send :alias_method_chain, :rendering_runtime, :memcache
+      ActionController::Base.send :alias_method_chain, :view_runtime, :memcache
     end
   end
 end
 
 module ActionController
   class Base 
-    def rendering_runtime_with_memcache(runtime) #:nodoc:
+    def view_runtime_with_memcache(runtime) #:nodoc:
       cache_runtime = ActsAsCached::Benchmarking.cache_runtime
       ActsAsCached::Benchmarking.cache_reset_runtime
-      rendering_runtime_without_memcache(runtime) + (cache_runtime.nonzero? ? " | Memcache: #{"%.5f" % cache_runtime}" : '')
+      view_runtime_without_memcache(runtime) + (cache_runtime.nonzero? ? " | Memcache: #{"%.5f" % cache_runtime}" : '')
     end
   end
 end 
