@@ -79,12 +79,11 @@ module ActsAsCached
     def get_caches_as_list(*args)
       cache_ids = args.last.is_a?(Hash) ? args.first : args
       cache_ids = [cache_ids].flatten
-      hash = get_caches(*args)
-      list = []
-      cache_ids.size.times do |i|
-        list << hash[cache_ids[i]]
+      hash      = get_caches(*args)
+      
+      cache_ids.map do |key|
+        hash[key]
       end
-      return list
     end
 
     def set_cache(cache_id, value, ttl = nil)
